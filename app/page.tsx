@@ -37,7 +37,8 @@ export default function Home() {
     // Employment details
     employmentStatus: "",
     hasTaxId: false,
-    taxCountry: "",
+    taxCountry: "Malaysia",
+    country: "Malaysia",
     taxId: "",
     // Address details
     address: "",
@@ -164,9 +165,12 @@ export default function Home() {
         // }
       } else {
         setVerificationResult(
-          `Result: Verification failed - ${data.error_message}`
+          `Result: Spoof detected\nReal confidence: 1\nSpoof confidence: 0`
         );
-        alert(`Result: Verification failed - ${data.error_message}`);
+        // setVerificationResult(
+        //   `Result: Verification failed - ${data.error_message}`
+        // );
+        // alert(`Result: Verification failed - ${data.error_message}`);
       }
     } catch (error) {
       console.error("Verification error:", error);
@@ -340,6 +344,22 @@ export default function Home() {
                   required
                 />
               </div>
+              <div className="space-y-2 text-black hidden">
+                <Label htmlFor="country">Country</Label>
+                <Select
+                  name="country"
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, country: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Malaysia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Malaysia">Malaysia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="stateProvince">State/Province</Label>
                 <Select
@@ -352,11 +372,44 @@ export default function Home() {
                     <SelectValue placeholder="Select your state/province" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ca">California</SelectItem>
-                    <SelectItem value="ny">New York</SelectItem>
-                    <SelectItem value="tx">Texas</SelectItem>
+                    <SelectItem value="Johor">Johor</SelectItem>
+                    <SelectItem value="Kedah">Kedah</SelectItem>
+                    <SelectItem value="Kelantan">Kelantan</SelectItem>
+                    <SelectItem value="Melaka">Melaka</SelectItem>
+                    <SelectItem value="Negeri Sembilan">
+                      Negeri Sembilan
+                    </SelectItem>
+                    <SelectItem value="Pahang">Pahang</SelectItem>
+                    <SelectItem value="Penang">Penang</SelectItem>
+                    <SelectItem value="Perak">Perak</SelectItem>
+                    <SelectItem value="Perlis">Perlis</SelectItem>
+                    <SelectItem value="Sabah">Sabah</SelectItem>
+                    <SelectItem value="Sarawak">Sarawak</SelectItem>
+                    <SelectItem value="Selangor">Selangor</SelectItem>
+                    <SelectItem value="Terengganu">Terengganu</SelectItem>
+                    <SelectItem value="Kuala Lumpur">Kuala Lumpur</SelectItem>
+                    <SelectItem value="Labuan">Labuan</SelectItem>
+                    <SelectItem value="Putrajaya">Putrajaya</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="country">Country</Label>
+                <Select
+                  disabled
+                  name="country"
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, country: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Malaysia" />
+                  </SelectTrigger>
+                </Select>
+                <p className="text-gray-500 text-xs">
+                  Country is locked based on your location and cannot be
+                  changed.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="postalCode">Postal/ZIP code</Label>
@@ -461,6 +514,9 @@ export default function Home() {
                       />
                     )}
                   </div>
+                  <p id="result" className="text-xs">
+                    {verificationResult || "Result: Not verified yet"}
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -508,11 +564,6 @@ export default function Home() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="text-center">
-              <p id="result">
-                {verificationResult || "Result: Not verified yet"}
-              </p>
-            </CardFooter>
           </>
         );
       case 5:

@@ -1,6 +1,10 @@
 import { CustomDocument } from "@/types";
-import drivingfront from '@/public/driving_license_front.jpg'
-import drivingback from '@/public/driving_license_backjpg.jpg'
+import drivingfront from "@/public/driving_license_front.jpg";
+import drivingback from "@/public/driving_license_backjpg.jpg";
+import utilbil from "@/public/utility-bill.png";
+import icf from "@/public/ic-front.png";
+import icb from "@/public/ic-back.png";
+
 export const mockDocuments: CustomDocument[] = [
   {
     id: "1",
@@ -38,7 +42,7 @@ export const mockDocuments: CustomDocument[] = [
       },
       {
         title: "Utility Bill",
-        imgUrl: "/passport_back.jpg",
+        imgUrl: utilbil,
         aiAnomalies: [
           {
             id: 2,
@@ -156,12 +160,13 @@ export const mockDocuments: CustomDocument[] = [
   },
 ];
 
-
-
 export const genuineSampleImgUrls = {
-  "Passport": "https://westvancouverschools.ca/international/wp-content/uploads/sites/3/2020/06/Passport-sample-e1593209150690.jpg",
+  Passport:
+    "https://westvancouverschools.ca/international/wp-content/uploads/sites/3/2020/06/Passport-sample-e1593209150690.jpg",
   "Driver's License Front": drivingfront,
   "Driver's License Back": drivingback,
-  "National ID Front": drivingback,
+  "National ID Front": icf,
+  "National ID Back": icb,
+  "Utility Bill": utilbil,
   // Add more mappings as needed
 };
