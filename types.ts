@@ -8,12 +8,7 @@ export type Anomaly = {
     x: number;
     y: number;
   };
-  
-  export type HistoricalData = {
-    date: string;
-    similarityScore: number;
-    anomalyCount: number;
-  };
+
   
   export type DocumentImage = {
     title: string;
@@ -36,5 +31,4 @@ export type Anomaly = {
     keyFindings: string[];
     detailedAnalysis: string;
     documents: DocumentImage[];
-    historicalData: HistoricalData[];
   };

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { CheckCircle, FileText, ZoomIn } from "lucide-react";
+import { CheckCircle, FileText, ZoomIn, User, XCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -18,6 +18,7 @@ import { Anomaly } from "@/types";
 import { useRouter } from "next/navigation";
 import { genuineSampleImgUrls } from "@/mock-data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import LoggingCard from "@/components/logging";
 
 interface ConfidenceScoreProps {
   score: number;
@@ -185,10 +186,6 @@ const EnhancedAdminDashboard: React.FC = () => {
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="details">Detailed Comparison</TabsTrigger>
               <TabsTrigger value="anomalies">AI Anomaly Detection</TabsTrigger>
-              {/* <TabsTrigger value="historical"> */}
-              {/* Historical Comparison */}
-              {/* </TabsTrigger> */}
-              {/* <TabsTrigger value="visualizations">Visualizations</TabsTrigger> */}
             </TabsList>
 
             {/* Overview Tab */}
@@ -203,7 +200,11 @@ const EnhancedAdminDashboard: React.FC = () => {
                     <ul className="space-y-2">
                       {document.keyFindings.map((finding, index) => (
                         <li key={index} className="flex items-center">
-                          <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                          {document.confidenceScore < 80 ? (
+                            <XCircle className="w-5 h-5 text-red-500 mr-2" />
+                          ) : (
+                            <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                          )}
                           {finding}
                         </li>
                       ))}
@@ -226,14 +227,12 @@ const EnhancedAdminDashboard: React.FC = () => {
                         <tr>
                           <th className="text-left">Field</th>
                           <th className="text-left">Submitted</th>
-                          <th className="text-left">Genuine Sample</th>
                           <th className="text-left">Match</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
                           <td>Name</td>
-                          <td>{document.name}</td>
                           <td>{document.name}</td>
                           <td>
                             <CheckCircle className="w-5 h-5 text-green-500" />
@@ -242,15 +241,13 @@ const EnhancedAdminDashboard: React.FC = () => {
                         <tr>
                           <td>Date of Birth</td>
                           <td>15/04/1985</td>
-                          <td>15/04/1985</td>
                           <td>
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           </td>
                         </tr>
                         <tr>
                           <td>Document Number</td>
-                          <td>X123456</td>
-                          <td>X123456</td>
+                          <td>{document.details.documentNumber}</td>
                           <td>
                             <CheckCircle className="w-5 h-5 text-green-500" />
                           </td>
@@ -317,19 +314,95 @@ const EnhancedAdminDashboard: React.FC = () => {
                 </CardContent>
               </Card>
             </TabsContent>
-
-            {/* Historical Comparison Tab */}
-            {/* <TabsContent value="historical"> */}
-            {/* Historical data content */}
-            {/* </TabsContent> */}
-
-            {/* Visualizations Tab */}
-            {/* <TabsContent value="visualizations"> */}
-            {/* Visualization content */}
-            {/* </TabsContent> */}
           </Tabs>
         </CardContent>
       </Card>
+      {/* User Submitted Selfie Section */}
+      <div className="mt-8 grid grid-cols-2 gap-4">
+        <div>
+          <h3 className="font-semibold mb-2">User Submitted Selfie with ID</h3>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Selfie with ID</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-gray-200 w-full h-[500px] rounded relative overflow-hidden flex items-center justify-center">
+                <User className="w-12 h-12 text-gray-400" />
+                <Image
+                  src={
+                    document.documents[0].imgUrl ||
+                    "/placeholder.svg?height=256&width=256"
+                  }
+                  alt="Selfie with ID"
+                  layout="fill"
+                  objectFit="contain"
+                  style={{
+                    transform: `scale(${zoomLevel / 100})`,
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Insights Section */}
+        <div>
+          <h3 className="font-semibold mb-2">Selfie Validation Insights</h3>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Insights</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3">
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="font-semibold">Face Match with ID</p>
+                    <p className="text-sm text-gray-500">
+                      The face in the selfie matches the photo on the ID with a
+                      confidence level of <strong>98%</strong>.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="font-semibold">Liveness Detection</p>
+                    <p className="text-sm text-gray-500">
+                      The liveness check confirms that the person is not a fake
+                      or spoofed image, with a real confidence score of{" "}
+                      <strong>0.95</strong>.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="font-semibold">ID Document Consistency</p>
+                    <p className="text-sm text-gray-500">
+                      Key details on the ID (e.g., name, date of birth) align
+                      with the information provided, supporting successful KYC
+                      validation.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <div>
+                    <p className="font-semibold">Overall Verification Status</p>
+                    <p className="text-sm text-gray-500">
+                      The submitted selfie and ID have passed all KYC checks,
+                      indicating a{" "}
+                      <strong>high likelihood of authenticity</strong>.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      <LoggingCard />
     </div>
   );
 };
