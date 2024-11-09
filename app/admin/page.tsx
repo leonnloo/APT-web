@@ -150,7 +150,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl my-20 mx-auto space-y-8">
+    <div className="w-full max-w-6xl mt-32 my-20 mx-auto space-y-8">
       <Card>
         <CardHeader>
           <CardTitle>Document Verification Dashboard</CardTitle>
