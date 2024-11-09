@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image";
+
 export type Anomaly = {
     id: number;
     type: string;
@@ -13,10 +15,16 @@ export type Anomaly = {
     anomalyCount: number;
   };
   
+  export type DocumentImage = {
+    title: string;
+    imgUrl: string | StaticImageData;
+    aiAnomalies: Anomaly[];
+  };
+  
   export type CustomDocument = {
     id: string;
-    type: string;
     name: string;
+    type: string;
     dateSubmitted: string;
     status: "pending" | "verified" | "failed";
     details: {
@@ -27,8 +35,6 @@ export type Anomaly = {
     confidenceScore: number;
     keyFindings: string[];
     detailedAnalysis: string;
-    imgUrl: string;
-    aiAnomalies: Anomaly[];
+    documents: DocumentImage[];
     historicalData: HistoricalData[];
   };
-  
