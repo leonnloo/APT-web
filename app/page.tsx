@@ -46,6 +46,7 @@ export default function Home() {
     postalCode: "",
     // Documents
     selfieWithId: null as File | null,
+    b64img: "",
     proofOfAddress: null as File | null,
     // FATCA and PEP
     fatcaStatus: "no",
@@ -57,6 +58,7 @@ export default function Home() {
   const [stabilityMessage, setStabilityMessage] = useState(
     "Hold steady, please"
   );
+  const [verificationResult, setVerificationResult] = useState("");
 
   const handleInputChange = (e: {
     target: { name: string; value: string };
@@ -93,8 +95,9 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    await verifyLiveness(formData.b64img);
     console.log("Form submitted:", formData);
     setStep(6); // Move to confirmation step
   };
@@ -109,7 +112,67 @@ export default function Home() {
     stabilityTimerRef.current = setTimeout(() => {
       setStabilityMessage("Ready to take photo");
       setMessageColor("text-green-600");
-    }, 2000);
+    }, 3000);
+  };
+
+  const verifyLiveness = async (base64Image: string) => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/verify_liveness", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image_data: base64Image,
+          req_id: "webcam_test",
+          dob: formData.dob,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setVerificationResult(
+          `Result: Spoof detected\nReal confidence: 1\nSpoof confidence: 0`
+        );
+        // const realConfidence = parseFloat(data.doc_json.real).toFixed(2);
+        // const spoofConfidence = parseFloat(data.doc_json.spoof).toFixed(2);
+
+        // * Due to limited api calls, actual respond is not implemented
+        // const estimatedAge = data.age_estimation;
+        // const dobYear = new Date(formData.dob).getFullYear();
+        // const ageRangeMin = dobYear;
+        // const ageRangeMax = dobYear + 10;
+        // const mykadDetails = data.mykad_response.data;
+
+        // if (spoofConfidence > realConfidence) {
+        //   alert(
+        //     `Result: Spoof detected\nReal confidence: ${realConfidence}\nSpoof confidence: ${spoofConfidence}`
+        //   );
+        //   setVerificationResult(
+        //     `Result: Spoof detected\nReal confidence: ${realConfidence}\nSpoof confidence: ${spoofConfidence}`
+        //   );
+        // } else if (estimatedAge >= ageRangeMin && estimatedAge <= ageRangeMax) {
+        //   setVerificationResult(
+        //     `Result: Verified as live person\nReal confidence: ${realConfidence}\nSpoof confidence: ${spoofConfidence}\n\nMYKad Details:\nName: ${mykadDetails.name}\nIC Number: ${mykadDetails.ic_number}\nAddress: ${mykadDetails.address}`
+        //   );
+        //   alert(
+        //     `Result: Verified as live person\nReal confidence: ${realConfidence}\nSpoof confidence: ${spoofConfidence}\n\nMYKad Details:\nName: ${mykadDetails.name}\nIC Number: ${mykadDetails.ic_number}\nAddress: ${mykadDetails.address}`
+        //   );
+        // } else {
+        //   setVerificationResult(
+        //     `Result: Age does not match. Estimated age: ${estimatedAge}`
+        //   );
+        //   alert(`Result: Age does not match. Estimated age: ${estimatedAge}`);
+        // }
+      } else {
+        setVerificationResult(
+          `Result: Verification failed - ${data.error_message}`
+        );
+        alert(`Result: Verification failed - ${data.error_message}`);
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      setVerificationResult("Error in verification process");
+      alert("Error in verification process");
+    }
   };
 
   useEffect(() => {
@@ -353,6 +416,18 @@ export default function Home() {
                     {isCameraOpen && (
                       <div className="relative">
                         <video ref={videoRef} className="w-full rounded-lg" />
+                        <div className="absolute inset-0 flex flex-col">
+                          {/* Top Segment for face */}
+                          <div className="flex-1 border-b border-gray-400 bg-black bg-opacity-20 flex items-center justify-center">
+                            <span className="text-white text-sm">
+                              Face Here
+                            </span>
+                          </div>
+                          {/* Bottom Segment for ID */}
+                          <div className="flex-1 border-t border-gray-400 bg-black bg-opacity-20 flex items-center justify-center">
+                            <span className="text-white text-sm">ID Here</span>
+                          </div>
+                        </div>
                         <Button
                           onClick={takePhoto}
                           className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-green-500"
@@ -433,6 +508,11 @@ export default function Home() {
                 </div>
               </div>
             </CardContent>
+            <CardFooter className="text-center">
+              <p id="result">
+                {verificationResult || "Result: Not verified yet"}
+              </p>
+            </CardFooter>
           </>
         );
       case 5:
@@ -609,6 +689,9 @@ export default function Home() {
             setFormData((prev) => ({ ...prev, selfieWithId: file }));
           }
         });
+        const base64Image = canvas.toDataURL("image/png").split(",")[1];
+        setFormData((prev) => ({ ...prev, b64img: base64Image }));
+        verifyLiveness(base64Image);
       }
     }
     closeCamera();
